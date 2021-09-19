@@ -1,9 +1,40 @@
 import { CharacterSummary } from "./character";
-import { ComicSummary } from "./comic";
+import { ComicFormat, ComicSummary } from "./comic";
 import { CreatorSummary } from "./creators";
 import { EventSummary } from "./events";
-import { MarvelImage, MarvelUrl, ResourceList } from "./marvelApi";
+import { MarvelImage, MarvelUrl, BaseQueryOptions, ResourceList } from "./marvelApi";
 import { StorySummary } from "./stories";
+
+export enum SeriesOrderByFields { Title = "title", Modified = "modified", StartYear = "startYear" }
+export enum SeriesFrequency { Collection = "colection", OneShot = "oneshot", Limited = "limited", Ongoing = "ongoing" }
+
+export interface SeriesQueryOptions extends BaseQueryOptions {
+    /** Search for exact comic name */
+    title: string
+    /** Search for comics begning with the provided string */
+    titleStartsWith: string
+    /** Returns comics whose series' started in the provided year */
+    startYear: number
+    /** Format YYYY-MM-DD */
+    modifiedSince: Date
+    /** Array of creator ids */
+    creators: number[]
+    /** Array of character ids */
+    characters: number[]
+    /** Array of comics ids */
+    comics: number[]
+    /** Array of event ids */
+    events: number[]
+    /** Array of story ids */
+    stories: number[]
+    /** Filter by series release frequency type */
+    seriesType: SeriesFrequency
+    /** Only series with an issue in the specified format */
+    contains: ComicFormat
+    /** Field to order results by */
+    orderBy: SeriesOrderByFields
+}
+
 
 export type SeriesSummary = {
     /** The path to the individual series resource */

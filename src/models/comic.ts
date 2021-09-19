@@ -1,9 +1,59 @@
 import { CharacterSummary } from "./character"
 import { CreatorSummary } from "./creators"
 import { EventSummary } from "./events"
-import { MarvelImage, MarvelUrl, ResourceList, TextObject } from "./marvelApi"
+import { MarvelImage, MarvelUrl, BaseQueryOptions, ResourceList, TextObject } from "./marvelApi"
 import { SeriesSummary } from "./series"
 import { StorySummary } from "./stories"
+
+export enum ComicOrderByFields { FocDate = 'focDate', OnsaleDate = 'onsaleDate', Title = 'title', IssueNumber = 'issueNumber', Modified = 'modified' }
+export type ComicFormat = "comic" | "magazine" | "trade paperback" | "hardcover" | "digest" | "graphic novel" | "digital comic" | "infinite comic"
+export type ComicFormatType = "comic" | "collection"
+
+export interface ComicQueryOptions extends BaseQueryOptions {
+    /** Release format for the issue */
+    format: ComicFormat
+    /** Comic or collection */
+    formatType: ComicFormatType
+    /** If true, only return original printings */
+    noVariants: boolean
+    /** Comics inside range */
+    dateDescriptor: "lastWeek" | "thisWeek" | "nextWeek" | "thisMonth" //
+    /** Comics inside range. Two dates in format YYYY-MM-DD */
+    dateRange: Date[]
+    /** Search for exact comic name */
+    title: string
+    /** Search for comics begning with the provided string */
+    titleStartsWith: string
+    /** Returns comics whose series' started in the provided year */
+    startYear: number
+    issueNumber: number
+    diamondCode: string
+    digitalId: number
+    upc: string
+    isbn: string
+    ean: string
+    issn: string
+    /** If only to return comics with digital versions */
+    hasDigitalIssue: boolean
+    /** Format YYYY-MM-DD */
+    modifiedSince: Date
+    /** Array of creator ids */
+    creators: number[]
+    /** Array of character ids */
+    characters: number[]
+    /** Array of series ids */
+    series: number[]
+    /** Array of event ids */
+    events: number[]
+    /** Array of story ids */
+    stories: number[]
+    /** Comics in which the characters appeared together */
+    sharedAppearances: number[]
+    /** Comics in which the collaborators worked together */
+    collaborators: number[]
+    /** Field to order results by */
+    orderBy: ComicOrderByFields
+}
 
 export type ComicSummary = {
     resourceURI?: string // The path to the individual comic resource

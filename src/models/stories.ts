@@ -2,8 +2,28 @@ import { CharacterSummary } from "./character";
 import { ComicSummary } from "./comic";
 import { CreatorSummary } from "./creators";
 import { EventSummary } from "./events";
-import { MarvelImage, ResourceList } from "./marvelApi";
+import { MarvelImage, BaseQueryOptions, ResourceList } from "./marvelApi";
 import { SeriesSummary } from "./series";
+
+export enum StoriesOrderByFields { Id = "id", Modified = "modified" }
+
+export interface StoryQueryOptions extends BaseQueryOptions {
+    /** Format YYYY-MM-DD */
+    modifiedSince: Date
+    /** Array of creator ids */
+    creators: number[]
+    /** Array of character ids */
+    characters: number[]
+    /** Array of comics ids */
+    comics: number[]
+    /** Array of event ids */
+    events: number[]
+    /** Array of story ids */
+    series: number[]
+    /** Field to order results by */
+    orderBy: StoriesOrderByFields
+}
+
 
 export type StorySummary = {
     /** The canonical name of the story */

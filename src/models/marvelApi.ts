@@ -1,4 +1,19 @@
-export type QueryOptions = { [key: string]: string }
+export enum OrderDirection { Ascending, Descending }
+
+export type QueryOptions = {
+    [key: string]: string | string[] | number | number[] | Date | Date[] | boolean | undefined 
+}
+
+export interface BaseQueryOptions {
+    /** How many results should be returned. Max 100 */
+    limit?: number
+    /** How many results should be skipped (for pagination) */
+    offset?: number
+    /** Ascending or Descending */
+    orderDirection?: OrderDirection
+    /** The field to order results by */
+    orderBy?: string
+}
 
 export type MarvelApiResponse<T> = {
     /** The HTTP status code of the returned result */

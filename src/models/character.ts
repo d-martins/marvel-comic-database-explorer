@@ -1,8 +1,29 @@
 import { ComicSummary } from "./comic"
 import { EventSummary } from "./events"
-import { MarvelImage, MarvelUrl, ResourceList } from "./marvelApi"
+import { MarvelImage, MarvelUrl, BaseQueryOptions, ResourceList } from "./marvelApi"
 import { SeriesSummary } from "./series"
 import { StorySummary } from "./stories"
+
+export enum CharacterOrderByFields { Name = 'name', Modified = 'modified' }
+
+export interface CharacterQueryOptions extends BaseQueryOptions {
+    /** Full character name */
+    name?: string
+    /** Search for characters begning with the provided string */
+    nameStartsWith?: string
+    /** Format YYYY-MM-DD */
+    modifiedSince?: Date
+    /** Array of comic ids */
+    comics?: number[]
+    /** Array of series ids */
+    series?: number[]
+    /** Array of event ids */
+    events?: number[]
+    /** Array of story ids */
+    stories?: number[]
+    /** Field to order results by */
+    orderBy?: CharacterOrderByFields
+}
 
 export type CharacterSummary = {
     /** The path to the individual character resource */

@@ -1,8 +1,40 @@
 import { ComicSummary } from "./comic"
 import { EventSummary } from "./events"
-import { MarvelImage, MarvelUrl, ResourceList } from "./marvelApi"
+import { MarvelImage, MarvelUrl, BaseQueryOptions, ResourceList } from "./marvelApi"
 import { SeriesSummary } from "./series"
 import { StorySummary } from "./stories"
+
+export enum EventsOrderByFields { Name = "name", Modified = "modified", StartDate = "startDate" }
+
+export interface CreatorQueryOptions extends BaseQueryOptions {
+    /** Full creator's first name */
+    firstName?: string
+    /** Full creator's middle name */
+    middleName?: string
+    /** Full creator's last name */
+    lastName?: string
+    /** Filter by suffix or honorific (Jr., Sr.) */
+    suffix?: string
+    /** Search for creators begning with the provided string */
+    nameStartsWith?: string
+    firstNameStartsWith?: string
+    middleNameStartsWith?: string
+    lastNameStartsWith?: string
+    /** Format YYYY-MM-DD */
+    modifiedSince?: Date
+    /** Array of comic ids */
+    comics?: number[]
+    /** Array of series ids */
+    series?: number[]
+    /** Array of event ids */
+    characters?: number[]
+    /** Array of events ids */
+    events?: number[]
+    /** Array of story ids */
+    stories?: number[]
+    /** Field to order results by */
+    orderBy?: EventsOrderByFields
+}
 
 export type CreatorSummary = {
     /** The path to the individual creator resource */
