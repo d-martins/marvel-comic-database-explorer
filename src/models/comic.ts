@@ -11,48 +11,48 @@ export type ComicFormatType = "comic" | "collection"
 
 export interface ComicQueryOptions extends BaseQueryOptions {
     /** Release format for the issue */
-    format: ComicFormat
+    format?: ComicFormat
     /** Comic or collection */
-    formatType: ComicFormatType
+    formatType?: ComicFormatType
     /** If true, only return original printings */
-    noVariants: boolean
+    noVariants?: boolean
     /** Comics inside range */
-    dateDescriptor: "lastWeek" | "thisWeek" | "nextWeek" | "thisMonth" //
+    dateDescriptor?: "lastWeek" | "thisWeek" | "nextWeek" | "thisMonth" //
     /** Comics inside range. Two dates in format YYYY-MM-DD */
-    dateRange: Date[]
+    dateRange?: Date[]
     /** Search for exact comic name */
-    title: string
+    title?: string
     /** Search for comics begning with the provided string */
-    titleStartsWith: string
+    titleStartsWith?: string
     /** Returns comics whose series' started in the provided year */
-    startYear: number
-    issueNumber: number
-    diamondCode: string
-    digitalId: number
-    upc: string
-    isbn: string
-    ean: string
-    issn: string
+    startYear?: number
+    issueNumber?: number
+    diamondCode?: string
+    digitalId?: number
+    upc?: string
+    isbn?: string
+    ean?: string
+    issn?: string
     /** If only to return comics with digital versions */
-    hasDigitalIssue: boolean
+    hasDigitalIssue?: boolean
     /** Format YYYY-MM-DD */
-    modifiedSince: Date
+    modifiedSince?: Date
     /** Array of creator ids */
-    creators: number[]
+    creators?: number[]
     /** Array of character ids */
-    characters: number[]
+    characters?: number[]
     /** Array of series ids */
-    series: number[]
+    series?: number[]
     /** Array of event ids */
-    events: number[]
+    events?: number[]
     /** Array of story ids */
-    stories: number[]
+    stories?: number[]
     /** Comics in which the characters appeared together */
-    sharedAppearances: number[]
+    sharedAppearances?: number[]
     /** Comics in which the collaborators worked together */
-    collaborators: number[]
+    collaborators?: number[]
     /** Field to order results by */
-    orderBy: ComicOrderByFields
+    orderBy?: ComicOrderByFields
 }
 
 export type ComicSummary = {

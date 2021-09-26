@@ -21,7 +21,7 @@ export type MarvelApiResponse<T> = {
     /** A string description of the call status */
     status: string
     /** The results returned by the call, */
-    data?: T
+    data?: MarvelDataContainer<T>
     /** A digest value of the content */
     etag?: string
     /** The copyright notice for the returned result */

@@ -9,19 +9,19 @@ export enum StoriesOrderByFields { Id = "id", Modified = "modified" }
 
 export interface StoryQueryOptions extends BaseQueryOptions {
     /** Format YYYY-MM-DD */
-    modifiedSince: Date
+    modifiedSince?: Date
     /** Array of creator ids */
-    creators: number[]
+    creators?: number[]
     /** Array of character ids */
-    characters: number[]
+    characters?: number[]
     /** Array of comics ids */
-    comics: number[]
+    comics?: number[]
     /** Array of event ids */
-    events: number[]
+    events?: number[]
     /** Array of story ids */
-    series: number[]
+    series?: number[]
     /** Field to order results by */
-    orderBy: StoriesOrderByFields
+    orderBy?: StoriesOrderByFields
 }
 
 

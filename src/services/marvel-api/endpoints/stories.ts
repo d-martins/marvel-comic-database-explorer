@@ -4,17 +4,18 @@ import { EventsQueryOptions } from "../../../models/events";
 import { Character, CharacterQueryOptions } from "../../../models/character";
 import { Creator, CreatorQueryOptions } from "../../../models/creators";
 import { Series, SeriesQueryOptions } from "../../../models/series";
+import { Story, StoryQueryOptions } from "../../../models/stories";
 
-export function getStoriesList(queryOptions: EventsQueryOptions) {
+export function getStoriesList(queryOptions: StoryQueryOptions) {
     const endpoint = '/v1/public/stories';
 
-    return makeRequest<Event>(endpoint, { ...queryOptions });
+    return makeRequest<Story>(endpoint, { ...queryOptions });
 }
 
 export function getStory(id: string) {
     const endpoint = `/v1/public/stories/${id}`;
 
-    return makeRequest<Event>(endpoint);
+    return makeRequest<Story>(endpoint);
 }
 
 export function getStoryCharacters(id: string, queryOptions: Omit<CharacterQueryOptions, "events">) {

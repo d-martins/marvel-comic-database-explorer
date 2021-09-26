@@ -2,20 +2,20 @@ import { makeRequest } from "../utils";
 import { Comic, ComicQueryOptions } from "../../../models/comic";
 import { Series, SeriesQueryOptions } from "../../../models/series";
 import { StoryQueryOptions as StoryQueryOptions, Story } from "../../../models/stories";
-import { EventsQueryOptions } from "../../../models/events";
+import { Events, EventsQueryOptions } from "../../../models/events";
 import { Character, CharacterQueryOptions } from "../../../models/character";
 import { Creator, CreatorQueryOptions } from "../../../models/creators";
 
 export function getEventsList(queryOptions: EventsQueryOptions) {
     const endpoint = '/v1/public/events';
 
-    return makeRequest<Event>(endpoint, { ...queryOptions });
+    return makeRequest<Events>(endpoint, { ...queryOptions });
 }
 
 export function getEvent(id: string) {
     const endpoint = `/v1/public/events/${id}`;
 
-    return makeRequest<Event>(endpoint);
+    return makeRequest<Events>(endpoint);
 }
 
 export function getEventCharacters(id: string, queryOptions: Omit<CharacterQueryOptions, "events">) {

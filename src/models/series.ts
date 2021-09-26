@@ -10,29 +10,29 @@ export enum SeriesFrequency { Collection = "colection", OneShot = "oneshot", Lim
 
 export interface SeriesQueryOptions extends BaseQueryOptions {
     /** Search for exact comic name */
-    title: string
+    title?: string
     /** Search for comics begning with the provided string */
-    titleStartsWith: string
+    titleStartsWith?: string
     /** Returns comics whose series' started in the provided year */
-    startYear: number
+    startYear?: number
     /** Format YYYY-MM-DD */
-    modifiedSince: Date
+    modifiedSince?: Date
     /** Array of creator ids */
-    creators: number[]
+    creators?: number[]
     /** Array of character ids */
-    characters: number[]
+    characters?: number[]
     /** Array of comics ids */
-    comics: number[]
+    comics?: number[]
     /** Array of event ids */
-    events: number[]
+    events?: number[]
     /** Array of story ids */
-    stories: number[]
+    stories?: number[]
     /** Filter by series release frequency type */
-    seriesType: SeriesFrequency
+    seriesType?: SeriesFrequency
     /** Only series with an issue in the specified format */
-    contains: ComicFormat
+    contains?: ComicFormat
     /** Field to order results by */
-    orderBy: SeriesOrderByFields
+    orderBy?: SeriesOrderByFields
 }
 
 

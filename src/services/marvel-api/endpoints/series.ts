@@ -4,17 +4,18 @@ import { StoryQueryOptions as StoryQueryOptions, Story } from "../../../models/s
 import { EventsQueryOptions } from "../../../models/events";
 import { Character, CharacterQueryOptions } from "../../../models/character";
 import { Creator, CreatorQueryOptions } from "../../../models/creators";
+import { Series, SeriesQueryOptions } from "../../../models/series";
 
-export function getSeriesList(queryOptions: EventsQueryOptions) {
+export function getSeriesList(queryOptions: SeriesQueryOptions) {
     const endpoint = '/v1/public/series';
 
-    return makeRequest<Event>(endpoint, { ...queryOptions });
+    return makeRequest<Series>(endpoint, { ...queryOptions });
 }
 
 export function getSeries(id: string) {
     const endpoint = `/v1/public/series/${id}`;
 
-    return makeRequest<Event>(endpoint);
+    return makeRequest<Series>(endpoint);
 }
 
 export function getSeriesCharacters(id: string, queryOptions: Omit<CharacterQueryOptions, "events">) {
