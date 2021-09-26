@@ -1,10 +1,10 @@
-import type { NextPage, GetServerSidePropsContext } from 'next'
+import type { NextPage } from 'next'
 import { useEffect, useState } from "react";
-import { Character } from '../src/models/character';
-import { MarvelApiResponse } from '../src/models/marvelApi';
-import { CharacterService } from '../src/services/marvel-api';
+import { Character } from '../../src/models/character';
+import { MarvelApiResponse } from '../../src/models/marvelApi';
+import { CharacterService } from '../../src/services/marvel-api';
 
-const CharactersPage: NextPage = () => {
+const CharactersListPage: NextPage = () => {
     const [isLoading, setLoading] = useState(true);
     const [data, setData] = useState<MarvelApiResponse<Character> | undefined>(undefined)
 
@@ -19,10 +19,10 @@ const CharactersPage: NextPage = () => {
 
 
     return (
-        <div>
-            {isLoading ? "loading....." : JSON.stringify(data)}
-        </div>
+        <pre>
+            {isLoading ? "loading....." : JSON.stringify(data?.data?.results, null, 4)}
+        </pre>
     )
 }
 
-export default CharactersPage;
+export default CharactersListPage;
