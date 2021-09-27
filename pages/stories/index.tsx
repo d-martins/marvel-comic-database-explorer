@@ -1,8 +1,8 @@
 import type { NextPage } from 'next'
 import { useEffect, useState } from "react";
-import { MarvelApiResponse } from '../../src/models/marvelApi';
-import { Story } from '../../src/models/stories';
-import { StoriesService } from '../../src/services/marvel-api';
+import { MarvelApiResponse } from '../../models/marvelApi';
+import { Story } from '../../models/stories';
+import { StoriesService } from '../../services/marvel-api';
 
 const StoriesListPage: NextPage = () => {
     const [isLoading, setLoading] = useState(true);

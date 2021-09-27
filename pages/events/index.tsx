@@ -1,8 +1,8 @@
 import type { NextPage } from 'next'
 import { useEffect, useState } from "react";
-import { Events } from '../../src/models/events';
-import { MarvelApiResponse } from '../../src/models/marvelApi';
-import { EventsService } from '../../src/services/marvel-api';
+import { Events } from '../../models/events';
+import { MarvelApiResponse } from '../../models/marvelApi';
+import { EventsService } from '../../services/marvel-api';
 
 const EventsListPage: NextPage = () => {
     const [isLoading, setLoading] = useState(true);

@@ -1,8 +1,8 @@
 import type { NextPage } from 'next'
 import { useEffect, useState } from "react";
-import { Comic } from '../../src/models/comic';
-import { MarvelApiResponse } from '../../src/models/marvelApi';
-import { ComicsService } from '../../src/services/marvel-api';
+import { Comic } from '../../models/comic';
+import { MarvelApiResponse } from '../../models/marvelApi';
+import { ComicsService } from '../../services/marvel-api';
 
 const ComicsListPage: NextPage = () => {
     const [isLoading, setLoading] = useState(true);

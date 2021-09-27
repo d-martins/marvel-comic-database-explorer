@@ -1,9 +1,9 @@
 import type { NextPage } from 'next'
 import { useEffect, useState } from "react";
-import { Character } from '../../src/models/character';
-import { MarvelApiResponse } from '../../src/models/marvelApi';
-import { Series } from '../../src/models/series';
-import { SeriesService } from '../../src/services/marvel-api';
+import { Character } from '../../models/character';
+import { MarvelApiResponse } from '../../models/marvelApi';
+import { Series } from '../../models/series';
+import { SeriesService } from '../../services/marvel-api';
 
 const SeriesListPage: NextPage = () => {
     const [isLoading, setLoading] = useState(true);

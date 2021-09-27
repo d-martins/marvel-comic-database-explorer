@@ -1,9 +1,9 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router';
 import { useEffect, useState } from "react";
-import { MarvelApiResponse } from '../../../src/models/marvelApi';
-import { Series } from '../../../src/models/series';
-import { SeriesService } from '../../../src/services/marvel-api';
+import { MarvelApiResponse } from '../../../models/marvelApi';
+import { Series } from '../../../models/series';
+import { SeriesService } from '../../../services/marvel-api';
 
 const SeriesDetailsPage: NextPage = () => {
     const router = useRouter();
