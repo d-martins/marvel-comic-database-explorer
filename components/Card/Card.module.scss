@@ -1,0 +1,55 @@
+@import '../../styles/bulma/sass/components/card.sass';
+
+.custom-card {
+    @extend .card;
+    box-shadow: none;
+
+    .card-overlay {
+        transition: opacity .15s;
+        opacity: .4;
+
+        &:hover {
+            opacity: .6;
+        }
+    }
+
+    :global {
+        .card-image {
+            line-height: 0;
+            box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-content {
+            .title {
+                transition: color .15s;
+                font-size: 1rem;
+
+                &:hover {
+                    color: $red;
+                }
+            }
+
+            .subtitle {
+                font-size: 1rem;
+                color: $grey-light;
+            }
+        }
+
+        .card-footer {
+            border: 0;
+
+            a {
+                transition: color .15s;
+                text-decoration: underline;
+
+
+                &:hover {
+
+                    color: red;
+                }
+            }
+        }
+    }
+
+
+}
