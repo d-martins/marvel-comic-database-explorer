@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import styles from '../styles/Home.module.scss'
 import Link from 'next/link';
 
 const Home: NextPage = ({ children }) => {
@@ -11,7 +11,6 @@ const Home: NextPage = ({ children }) => {
         <meta name="description" content="Discover Marvel comics" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Red+Hat+Display:wght@400;500;700&display=swap" rel="stylesheet"/>
       </Head>
 
       <main className={styles.main}>
