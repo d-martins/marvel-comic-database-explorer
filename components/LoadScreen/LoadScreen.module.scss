@@ -1,0 +1,27 @@
+.load-screen {
+    height: 100%;
+    width: 100%;
+    text-align: center;
+
+
+    &>span {
+        border: 0;
+        background: transparent;
+
+        &:global(.is-xsmall) {
+            font-size: 1rem;
+        }
+
+        &:global(.is-small) {
+            font-size: 3rem;
+        }
+
+        &:global(.is-medium) {
+            font-size: 7rem;
+        }
+
+        &:global(.is-large) {
+            font-size: 14rem;
+        }
+    }
+}

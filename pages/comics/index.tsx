@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
-import { useEffect, useState } from "react";
-import { Comic, ComicOrderByFields } from '../../models/comic';
-import { MarvelApiResponse, OrderDirection } from '../../models/marvelApi';
+import { FC, useEffect, useState } from "react";
+import { Comic, ComicDate, ComicOrderByFields } from '../../models/comic';
+import { MarvelApiResponse, MarvelImage, OrderDirection } from '../../models/marvelApi';
 import { ComicsService } from '../../services/marvel-api';
 import Card from '../../components/Card/Card';
 import Error from 'next/error'
@@ -10,6 +10,10 @@ import { ColumnSizes } from '../../models/bulma';
 import Dropdown, { DropdownOption, DropdownProps } from '../../components/Dropdown/Dropdown';
 import useDebounce from '../../hooks/useDebounce';
 import SearchTypeAhead from '../../components/SearchBar/SearchTypeAhead';
+import FilterLayout from '../../components/FilterLayout/FilterLayout';
+import { CreatorSummary } from '../../models/creators';
+import LoadScreen from '../../components/LoadScreen/LoadScreen';
+import ErrorScreen from '../../components/ErrorScreen/ErrorScreen';
 
 const ComicsListPage: NextPage = () => {
     const [isLoading, setLoading] = useState(true);
@@ -20,20 +24,11 @@ const ComicsListPage: NextPage = () => {
     const [searchWord, setSearchWord] = useState<string>("");
     const [filterWord, setFilterWord] = useState<string>("");
     const [suggestions, setSuggestions] = useState<DropdownOption[]>([]);
+    const [error, setError] = useState<string>();
 
     const debouncedSearchWord = useDebounce(searchWord, 500);
 
-    useEffect(() => {
-        const now = new Date();
-        const pastDate = new Date(now.getFullYear() - 200, now.getMonth() + 1, now.getDate());
-
-        ComicsService.getComicsList({
-            dateRange: [pastDate, now], // don't list upcoming titles
-            orderBy: sortColumn,
-            orderDirection: sortDirection,
-            titleStartsWith: filterWord
-        }).then(handleResponse)
-    }, [sortColumn, sortDirection, filterWord])
+    useEffect(() => { loadData() }, [sortColumn, sortDirection, filterWord])
 
     useEffect(() => {
         if (!debouncedSearchWord) {
@@ -48,9 +43,29 @@ const ComicsListPage: NextPage = () => {
         }).then(handleSearchResponse)
     }, [debouncedSearchWord])
 
+    const loadData = () => {
+        const now = new Date();
+        const pastDate = new Date(now.getFullYear() - 200, now.getMonth() + 1, now.getDate());
+
+        setLoading(true);
+        ComicsService.getComicsList({
+            dateRange: [pastDate, now], // don't list upcoming titles
+            orderBy: sortColumn,
+            orderDirection: sortDirection,
+            titleStartsWith: filterWord
+        }).then(handleResponse)
+    }
     const handleResponse = (resp: MarvelApiResponse<Comic>) => {
         setData(resp);
         setLoading(false);
+
+        if (resp.code !== 200) {
+            setError(resp.status);
+        } else if (resp.data?.count === 0) {
+            setError("Couldn't find any results");
+        } else {
+            setError(undefined);
+        }
     }
 
     const handleSearchResponse = (resp: MarvelApiResponse<Comic>) => {
@@ -70,14 +85,6 @@ const ComicsListPage: NextPage = () => {
         })
         setSuggestions(options);
     }
-
-    if (isLoading) { return <span>loading...</span>; }
-
-    if (data?.code !== 200) {
-        return <Error statusCode={data?.code || 500} title={data?.status}></Error>
-    }
-
-    const results = data.data?.results || [{}]
 
     const columnOptions: DropdownOption[] = [
         { value: ComicOrderByFields.Title, label: "Title" },
@@ -99,79 +106,99 @@ const ComicsListPage: NextPage = () => {
         setSortDirection(option.value as OrderDirection);
     }
 
-    // ✔ add state for selected sort column
-    // ✔ add state for sort direction
-    // add state for search word
-    // add state for search suggestions (or pass a function that renders them to the search component)
-
-    // create useDebounce hook
-    // create component for search
-    // ✔ create component for sort
-    // create component for filtering controls
-
-    // put it all together with useEffect hooks to update data
-    // create loading component
-    // create re-loading component
-    // test errors
+    const results = data?.data?.results || [{}]
 
     return (
         <section className="section">
+            <FilterLayout
+                filters={[{
+                    label: "Sort by",
+                    options: columnOptions,
+                    value: sortColumn,
+                    onChange: onOptionSelected,
+                }, {
+                    label: "Direction",
+                    options: directionOptions,
+                    value: sortDirection,
+                    onChange: onDirectionOptionSelected,
+                }
+                ]}
+                searchOptions={{
+                    value: searchWord,
+                    icon: "search",
+                    isLoading: isSearching,
+                    suggestions: suggestions,
+                    onInput: (v) => { setSearchWord(v); },
+                    onEnter: (v) => { setFilterWord(v); setSuggestions([]) },
+                }}
+            >
+                <LoadScreen isLoading={isLoading}>
+                    {error ? (
+                        <ErrorScreen
+                            title={error}
+                            onTryAgain={data?.code !== 200 ? loadData : undefined}
+                        ></ErrorScreen>
+                    ) : (
+                        <GridLayout columnSize={{
+                            mobile: ColumnSizes.Half,
+                            tablet: ColumnSizes.OneThird,
+                            desktop: ColumnSizes.OneThird,
+                            widescreen: ColumnSizes.OneQuarter
+                        }}>
+                            {results.map(comic => <ComicCard comic={comic} key={comic.id}></ComicCard>) || null}
+                        </GridLayout>
+                    )}
 
-            <div className="container">
-                <div className="columns">
-                    <div className="column">
-                        <SearchTypeAhead
-                            value={searchWord}
-                            icon="search"
-                            isLoading={isSearching}
-                            suggestions={suggestions}
-                            onInput={(v) => { setSearchWord(v); }}
-                            onEnter={(v) => { setFilterWord(v); setSuggestions([]) }}
-                        ></SearchTypeAhead></div>
-                    <div className="column">
-                        <Dropdown
-                            label="Sort by"
-                            options={columnOptions}
-                            value={sortColumn}
-                            onChange={onOptionSelected}
-                        ></Dropdown>
-                        <Dropdown
-                            label="Direction"
-                            options={directionOptions}
-                            value={sortDirection}
-                            onChange={onDirectionOptionSelected}
-                        ></Dropdown>
-                    </div>
-                </div>
-                <GridLayout columnSize={{
-                    mobile: ColumnSizes.Half,
-                    tablet: ColumnSizes.Half,
-                    desktop: ColumnSizes.OneThird,
-                    widescreen: ColumnSizes.OneQuarter
-                }}>
-                    {results.map(comic => {
-                        const creators = comic.creators?.items.filter(creator => creator.name && creator.resourceURI) || [];
-                        const creatorLinks = creators.map(creator => {
-                            return {
-                                label: creator.name || '',
-                                href: `/creators/${creator.resourceURI?.split('/').pop()}`
-                            }
-                        })
-
-                        return <Card
-                            key={comic.id}
-                            title={comic.title || ""}
-                            byline={comic.dates?.find(date => date.type === 'onsaleDate')?.date?.toString() || ""}
-                            links={creatorLinks}
-                            thumbnail={{ src: `${comic.thumbnail?.path}/portrait_incredible.${comic.thumbnail?.extension}`, alt: "cover image of the comic book" }}
-                            useOverlay={true}
-                            href={`/comics/${comic.id}`}
-                        ></Card>
-                    }) || null}
-                </GridLayout>
-            </div>
+                </LoadScreen>
+            </FilterLayout>
         </section>)
+}
 
+const ComicCard: FC<{ comic: Comic }> = ({ comic }) => {
+    const title = comic.title || ''
+    const comicDate = getComicDate(comic.dates);
+    const byline = comicDate ? comicDate.toLocaleDateString() : 'no date available'
+    const creatorLinks = getCreatorLinks(comic.creators?.items);
+    const thumbnail = getThumbnailUrl(comic.thumbnail);
+
+    function getComicDate(dates?: ComicDate[]) {
+        if (!dates || !dates.length) { return null; }
+
+        const dateObj = dates.find(date => date.type === 'onsaleDate') || dates[0];
+
+        return dateObj.date ? new Date(dateObj.date) : null;
+    }
+
+    function getCreatorLinks(creators?: CreatorSummary[]) {
+        if (!creators) { return []; }
+
+        // filters out creators that don't have the info we need to build the link
+        const useableCreators = creators.filter(creator => creator.name && creator.resourceURI) || []
+
+        return useableCreators.map(creator => {
+            return {
+                label: creator.name || '',
+                href: `/creators/${creator.resourceURI?.split('/').pop()}`
+            }
+        })
+    }
+
+    function getThumbnailUrl(image?: MarvelImage) {
+        if (!image || !image.path || !image.extension) {
+            return "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available/portrait_incredible.jpg"
+        }
+
+        return `${image.path}/portrait_incredible.${image.extension}`
+    }
+
+    return <Card
+        title={title}
+        byline={byline}
+        links={creatorLinks}
+        thumbnail={{ src: thumbnail, alt: 'cover image of the comic issue' }}
+        useOverlay={true}
+        href={`/comics/${comic.id}`}
+    ></Card>
 
 }
 
