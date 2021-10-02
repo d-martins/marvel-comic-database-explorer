@@ -23,7 +23,7 @@ const FilterLayout: FC<FilterLayoutProps> = ({ children, searchOptions, filters 
                     })}
                 </div>
             </div>
-            <div className="content-zone">
+            <div className="content-zone is-relative">
                 {children}
             </div>
         </div>

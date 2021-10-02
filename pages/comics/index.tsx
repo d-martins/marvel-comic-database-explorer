@@ -1,5 +1,5 @@
 import type { NextPage } from 'next'
-import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import { FC, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Comic, ComicDate, ComicOrderByFields, ComicQueryOptions } from '../../models/comic';
 import { MarvelApiResponse, MarvelImage, OrderDirection } from '../../models/marvelApi';
 import { ComicsService } from '../../services/marvel-api';
@@ -13,6 +13,7 @@ import Card from '../../components/Card/Card';
 import GridLayout from '../../components/GridLayout/GridLayout';
 import FilterLayout from '../../components/FilterLayout/FilterLayout';
 import useDebounce from '../../hooks/useDebounce';
+import Pagination from '../../components/Pagination/Pagination';
 
 async function getData(query: ComicQueryOptions) {
     return await ComicsService.getComicsList(query)
@@ -39,6 +40,7 @@ const ComicsListPage: NextPage = () => {
     const [suggestions, setSuggestions] = useState<DropdownOption[]>([]);
     const [searchWord, setSearchWord] = useState<string>("");
     const [filterWord, setFilterWord] = useState<string>("");
+    const [page, setPage] = useState<number>(0);
 
     const [sortColumn, setSortColumn] = useState<ComicOrderByFields>(ComicOrderByFields.OnsaleDate);
     const [sortDirection, setSortDirection] = useState<OrderDirection>(OrderDirection.Descending);
@@ -46,7 +48,7 @@ const ComicsListPage: NextPage = () => {
     const debouncedSearchWord = useDebounce(searchWord, 500);
     const results = data?.data?.results || [{}]
 
-    const query = useMemo(() => {
+    const query: ComicQueryOptions = useMemo(() => {
         const now = new Date();
         const pastDate = new Date(now.getFullYear() - 200, now.getMonth() + 1, now.getDate());
 
@@ -54,9 +56,11 @@ const ComicsListPage: NextPage = () => {
             dateRange: [pastDate, now], // don't list upcoming titles
             orderBy: sortColumn,
             orderDirection: sortDirection,
-            titleStartsWith: filterWord
+            titleStartsWith: filterWord,
+            limit: 20,
+            offset: page * 20,
         }
-    }, [sortColumn, sortDirection, filterWord])
+    }, [sortColumn, sortDirection, filterWord, page])
 
     // memoizes the load data function so it can be called inside effects
     const loadData = useCallback(() => {
@@ -80,6 +84,11 @@ const ComicsListPage: NextPage = () => {
             titleStartsWith: debouncedSearchWord
         }).then(handleSearchResponse)
     }, [debouncedSearchWord])
+
+    useLayoutEffect(() => {
+        // TODO: detect IE11 and animate scroll with js
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }, [page])
 
 
     const handleResponse = (resp: MarvelApiResponse<Comic>) => {
@@ -142,25 +151,44 @@ const ComicsListPage: NextPage = () => {
                     onEnter: (v) => { setFilterWord(v); setSuggestions([]) },
                 }}
             >
-                <LoadScreen isLoading={isLoading}>
+                <LoadScreen isLoading={isLoading && !data}>
                     {error ? (
                         <ErrorScreen
                             title={error}
                             onTryAgain={data?.code !== 200 ? loadData : undefined}
                         ></ErrorScreen>
                     ) : (
-                        <GridLayout columnSize={{
-                            mobile: ColumnSizes.Half,
-                            tablet: ColumnSizes.OneThird,
-                            desktop: ColumnSizes.OneThird,
-                            widescreen: ColumnSizes.OneQuarter
-                        }}>
-                            {results.map(comic => <ComicCard comic={comic} key={comic.id}></ComicCard>) || null}
-                        </GridLayout>
-                    )}
+                        <>
+                            <GridLayout columnSize={{
+                                mobile: ColumnSizes.Half,
+                                tablet: ColumnSizes.OneThird,
+                                desktop: ColumnSizes.OneThird,
+                                widescreen: ColumnSizes.OneQuarter
+                            }}>
+                                {results.map(comic => <ComicCard comic={comic} key={comic.id}></ComicCard>) || null}
+                            </GridLayout>
 
+                            {isLoading ? (
+                                <div className="is-overlay is-fade-in-out has-background-light"></div>
+                            ) : null}
+                        </>
+                    )}
                 </LoadScreen>
             </FilterLayout>
+            {data ? (
+                <section className="section pt-0">
+                    <div className="container">
+                        <Pagination
+                            currentPage={page}
+                            pageSize={20}
+                            totalItems={data?.data?.total || results.length}
+                            onClick={(newPage) => { setPage(newPage); }}
+                        ></Pagination>
+                    </div>
+                </section>
+            ) : null}
+
+
         </section >
     </>)
 }
