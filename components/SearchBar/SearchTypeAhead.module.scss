@@ -1,0 +1,10 @@
+.search-bar {
+    :global {
+
+        .dropdown,
+        .dropdown-menu,
+        .dropdown-trigger {
+            width: 100%;
+        }
+    }
+}

@@ -86,7 +86,7 @@ const Dropdown: FC<DropdownProps> = ({ label, value, options, onChange, children
                                     {option.label}
                                 </div>
                             );
-                            return option.href ? <Link href={option.href}><a>{item}</a></Link> : item;
+                            return option.href ? <Link href={option.href} key={option.value}><a>{item}</a></Link> : item;
                         })}
 
                     </div>
