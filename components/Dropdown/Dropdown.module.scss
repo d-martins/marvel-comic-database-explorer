@@ -3,10 +3,13 @@
 $transition-duration: .15s;
 
 .custom-dropdown {
+    background: transparent;
 
     :global {
         .dropdown-trigger {
+
             button {
+                background-color: transparent;
                 border: none;
                 margin-right: 2px;
                 height: auto;
@@ -14,7 +17,7 @@ $transition-duration: .15s;
             }
 
             &:hover button {
-                background-color: $grey-lightest;
+                background-color: $grey-lighter;
             }
         }
 

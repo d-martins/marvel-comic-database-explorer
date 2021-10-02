@@ -3,6 +3,7 @@
 .custom-card {
     @extend .card;
     box-shadow: none;
+    background: transparent;
 
     .card-overlay {
         transition: opacity .15s;
