@@ -1,0 +1,27 @@
+@import '../../styles/bulma/sass/utilities/initial-variables.sass';
+@import '../../styles/bulma/sass/utilities/mixins.sass';
+
+.filter-layout {
+    :global {
+        .filter-zones {
+            margin-bottom: 2rem;
+
+            .filters-zone {
+                @include from($tablet) {
+                    white-space: nowrap;
+                }
+            }
+
+            &>div:not(:last-child) {
+                @include from($tablet) {
+                    margin-right: 1rem;
+                }
+
+                @include until($tablet) {
+                    margin-bottom: .5rem;
+                }
+            }
+
+        }
+    }
+}

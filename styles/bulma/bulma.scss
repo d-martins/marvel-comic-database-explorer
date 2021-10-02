@@ -33,6 +33,12 @@ $family-sans-serif: 'Open Sans',
 $family-secondary: 'Red Hat Display',
 sans-serif;
 
+// custom classes
+
+.is-fullwidth {
+    width: 100%
+}
+
 
 /*! bulma.io v0.9.3 | MIT License | github.com/jgthms/bulma */
 @import "sass/utilities/_all";
