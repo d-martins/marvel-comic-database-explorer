@@ -1,35 +1,74 @@
 import type { NextPage } from 'next'
-import { FC, useEffect, useState } from "react";
-import { Comic, ComicDate, ComicOrderByFields } from '../../models/comic';
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import { Comic, ComicDate, ComicOrderByFields, ComicQueryOptions } from '../../models/comic';
 import { MarvelApiResponse, MarvelImage, OrderDirection } from '../../models/marvelApi';
 import { ComicsService } from '../../services/marvel-api';
-import Card from '../../components/Card/Card';
-import Error from 'next/error'
-import GridLayout from '../../components/GridLayout/GridLayout';
 import { ColumnSizes } from '../../models/bulma';
-import Dropdown, { DropdownOption, DropdownProps } from '../../components/Dropdown/Dropdown';
-import useDebounce from '../../hooks/useDebounce';
-import SearchTypeAhead from '../../components/SearchBar/SearchTypeAhead';
-import FilterLayout from '../../components/FilterLayout/FilterLayout';
+import { DropdownOption } from '../../components/Dropdown/Dropdown';
 import { CreatorSummary } from '../../models/creators';
+
 import LoadScreen from '../../components/LoadScreen/LoadScreen';
 import ErrorScreen from '../../components/ErrorScreen/ErrorScreen';
+import Card from '../../components/Card/Card';
+import GridLayout from '../../components/GridLayout/GridLayout';
+import FilterLayout from '../../components/FilterLayout/FilterLayout';
+import useDebounce from '../../hooks/useDebounce';
+
+async function getData(query: ComicQueryOptions) {
+    return await ComicsService.getComicsList(query)
+}
+
+const columnOptions: DropdownOption[] = [
+    { value: ComicOrderByFields.Title, label: "Title" },
+    { value: ComicOrderByFields.IssueNumber, label: "Issue number" },
+    { value: ComicOrderByFields.Modified, label: "Last modified" },
+    { value: ComicOrderByFields.OnsaleDate, label: "Sale date" },
+    { value: ComicOrderByFields.FocDate, label: "Final order date" },
+]
+const directionOptions: DropdownOption[] = [
+    { value: OrderDirection.Ascending, label: "Ascending" },
+    { value: OrderDirection.Descending, label: "Descending" },
+]
 
 const ComicsListPage: NextPage = () => {
     const [isLoading, setLoading] = useState(true);
     const [isSearching, setSearching] = useState(false);
     const [data, setData] = useState<MarvelApiResponse<Comic> | undefined>(undefined)
-    const [sortColumn, setSortColumn] = useState<ComicOrderByFields>(ComicOrderByFields.OnsaleDate);
-    const [sortDirection, setSortDirection] = useState<OrderDirection>(OrderDirection.Descending);
-    const [searchWord, setSearchWord] = useState<string>("");
-    const [filterWord, setFilterWord] = useState<string>("");
-    const [suggestions, setSuggestions] = useState<DropdownOption[]>([]);
     const [error, setError] = useState<string>();
 
+    const [suggestions, setSuggestions] = useState<DropdownOption[]>([]);
+    const [searchWord, setSearchWord] = useState<string>("");
+    const [filterWord, setFilterWord] = useState<string>("");
+
+    const [sortColumn, setSortColumn] = useState<ComicOrderByFields>(ComicOrderByFields.OnsaleDate);
+    const [sortDirection, setSortDirection] = useState<OrderDirection>(OrderDirection.Descending);
+
     const debouncedSearchWord = useDebounce(searchWord, 500);
+    const results = data?.data?.results || [{}]
 
-    useEffect(() => { loadData() }, [sortColumn, sortDirection, filterWord])
+    const query = useMemo(() => {
+        const now = new Date();
+        const pastDate = new Date(now.getFullYear() - 200, now.getMonth() + 1, now.getDate());
 
+        return {
+            dateRange: [pastDate, now], // don't list upcoming titles
+            orderBy: sortColumn,
+            orderDirection: sortDirection,
+            titleStartsWith: filterWord
+        }
+    }, [sortColumn, sortDirection, filterWord])
+
+    // memoizes the load data function so it can be called inside effects
+    const loadData = useCallback(() => {
+        setLoading(true);
+
+        getData(query).then(handleResponse);
+    }, [query])
+
+    // loads data according to the latest query options
+    useEffect(() => { loadData() }, [loadData])
+
+    // loads the suggestions a few ms after the user searches something
     useEffect(() => {
         if (!debouncedSearchWord) {
             setSuggestions([]);
@@ -37,24 +76,12 @@ const ComicsListPage: NextPage = () => {
         }
 
         setSearching(true);
-
-        ComicsService.getComicsList({
+        getData({
             titleStartsWith: debouncedSearchWord
         }).then(handleSearchResponse)
     }, [debouncedSearchWord])
 
-    const loadData = () => {
-        const now = new Date();
-        const pastDate = new Date(now.getFullYear() - 200, now.getMonth() + 1, now.getDate());
 
-        setLoading(true);
-        ComicsService.getComicsList({
-            dateRange: [pastDate, now], // don't list upcoming titles
-            orderBy: sortColumn,
-            orderDirection: sortDirection,
-            titleStartsWith: filterWord
-        }).then(handleResponse)
-    }
     const handleResponse = (resp: MarvelApiResponse<Comic>) => {
         setData(resp);
         setLoading(false);
@@ -86,28 +113,6 @@ const ComicsListPage: NextPage = () => {
         setSuggestions(options);
     }
 
-    const columnOptions: DropdownOption[] = [
-        { value: ComicOrderByFields.Title, label: "Title" },
-        { value: ComicOrderByFields.IssueNumber, label: "Issue number" },
-        { value: ComicOrderByFields.Modified, label: "Last modified" },
-        { value: ComicOrderByFields.OnsaleDate, label: "Sale date" },
-        { value: ComicOrderByFields.FocDate, label: "Final order date" },
-    ]
-
-    const directionOptions: DropdownOption[] = [
-        { value: OrderDirection.Ascending, label: "Ascending" },
-        { value: OrderDirection.Descending, label: "Descending" },
-    ]
-
-    const onOptionSelected = (option: DropdownOption) => {
-        setSortColumn(option.value as ComicOrderByFields);
-    }
-    const onDirectionOptionSelected = (option: DropdownOption) => {
-        setSortDirection(option.value as OrderDirection);
-    }
-
-    const results = data?.data?.results || [{}]
-
     return (
         <section className="section">
             <FilterLayout
@@ -115,12 +120,12 @@ const ComicsListPage: NextPage = () => {
                     label: "Sort by",
                     options: columnOptions,
                     value: sortColumn,
-                    onChange: onOptionSelected,
+                    onChange: ({ value }) => { setSortColumn(value as ComicOrderByFields) },
                 }, {
                     label: "Direction",
                     options: directionOptions,
                     value: sortDirection,
-                    onChange: onDirectionOptionSelected,
+                    onChange: ({ value }) => { setSortDirection(value as OrderDirection); },
                 }
                 ]}
                 searchOptions={{
@@ -151,7 +156,7 @@ const ComicsListPage: NextPage = () => {
 
                 </LoadScreen>
             </FilterLayout>
-        </section>)
+        </section >)
 }
 
 const ComicCard: FC<{ comic: Comic }> = ({ comic }) => {
