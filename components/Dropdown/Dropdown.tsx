@@ -16,7 +16,7 @@ export type DropdownProps = {
     onChange?: (option: DropdownOption) => void
 }
 
-const Dropdown: FC<DropdownProps> = ({ label, value, options, onChange }) => {
+const Dropdown: FC<DropdownProps> = ({ label, value, options, onChange, children }) => {
     const [isOpen, setOpen] = useState<boolean>(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -57,37 +57,41 @@ const Dropdown: FC<DropdownProps> = ({ label, value, options, onChange }) => {
     return (
         <div className={`dropdown ${isOpen ? ' is-active' : ''} ${styles['custom-dropdown']}`} ref={ref}>
             <div className="dropdown-trigger" onClick={toggleDropdown}>
-                <button className="button has-border-0">
-                    {label ? (
-                        <span className="has-text-weight-bold mr-2">{label}{selectedOption ? ':' : ''}</span>
-                    ) : null}
-                    {selectedOption ? (
-                        <span>{selectedOption.label}</span>
-                    ) : null}
-                    {!label && !selectedOption ? (
-                        <span>No selection</span>
-                    ) : null}
-                    <span className="material-icons">{arrowClass}</span>
-                </button>
+                {!children ? (
+                    <button className="button has-border-0">
+                        {label ? (
+                            <span className="has-text-weight-bold mr-2">{label}{selectedOption ? ':' : ''}</span>
+                        ) : null}
+                        {selectedOption ? (
+                            <span>{selectedOption.label}</span>
+                        ) : null}
+                        {!label && !selectedOption ? (
+                            <span>No selection</span>
+                        ) : null}
+                        <span className="material-icons">{arrowClass}</span>
+                    </button>
+                ) : children}
             </div>
-            <div className="dropdown-menu">
-                <div className="dropdown-content">
-                    {options.map(option => {
-                        const activeClass = option === selectedOption ? 'is-active' : '';
-                        const item = (
-                            <div
-                                key={option.value}
-                                className={`dropdown-item is-clickable ${activeClass}`}
-                                onClick={() => handleItemClick(option)}
-                            >
-                                {option.label}
-                            </div>
-                        );
-                        return option.href ? <Link href={option.href}><a>{item}</a></Link> : item;
-                    })}
+            {options && options.length ? (
+                <div className="dropdown-menu">
+                    <div className="dropdown-content">
+                        {options.map(option => {
+                            const activeClass = option === selectedOption ? 'is-active' : '';
+                            const item = (
+                                <div
+                                    key={option.value}
+                                    className={`dropdown-item is-clickable ${activeClass}`}
+                                    onClick={() => handleItemClick(option)}
+                                >
+                                    {option.label}
+                                </div>
+                            );
+                            return option.href ? <Link href={option.href}><a>{item}</a></Link> : item;
+                        })}
 
+                    </div>
                 </div>
-            </div>
+            ) : null}
         </div>
     );
 }
