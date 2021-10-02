@@ -1,0 +1,34 @@
+@import '../../styles/bulma/sass/components/dropdown.sass';
+
+$transition-duration: .15s;
+
+.custom-dropdown {
+
+    :global {
+        .dropdown-trigger {
+            button {
+                border: none;
+                margin-right: 2px;
+                height: auto;
+                transition: background-color $transition-duration;
+            }
+
+            &:hover button {
+                background-color: $grey-lightest;
+            }
+        }
+
+        .dropdown-content {
+            .dropdown-item {
+                transition: background-color $transition-duration;
+
+                &.is-active {
+                    background-color: $grey-lightest;
+                }
+                &:hover{
+                    background-color: $grey-lighter;
+                }
+            }
+        }
+    }
+}
