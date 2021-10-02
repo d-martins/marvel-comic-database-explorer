@@ -14,7 +14,7 @@ const Home: NextPage = ({ children }) => {
       </Head>
 
       <main className={styles.main}>
-        <Link href="/characters"><a>Characters</a></Link>
+        <Link href="/comics"><a>Comics</a></Link>
 
         {children}
       </main>
