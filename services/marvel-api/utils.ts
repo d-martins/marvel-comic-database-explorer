@@ -34,6 +34,7 @@ function buildQueryString(query: QueryOptions) {
     queryKeys.forEach(key => {
         let value = stringifyQueryValue(query[key]);
 
+        if (value === '' || value === undefined || value === null) { return; }
         if (key === 'orderDirection') { return; }
         if (key === 'orderBy' && query.orderDirection === OrderDirection.Descending) {
             value = `-${value}`
@@ -60,7 +61,7 @@ function stringifyQueryValue(value: QueryOptions[string]): string {
         }
     }
 
-    if (typeof value === 'undefined'){
+    if (typeof value === 'undefined') {
         return ''
     }
 
