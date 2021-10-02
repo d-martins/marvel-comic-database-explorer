@@ -113,7 +113,12 @@ const ComicsListPage: NextPage = () => {
         setSuggestions(options);
     }
 
-    return (
+    return (<>
+        <section className="section is-size-3 has-text-weight-bold is-family-secondary pb-0">
+            <div className="container">
+                Comics
+            </div>
+        </section>
         <section className="section">
             <FilterLayout
                 filters={[{
@@ -156,7 +161,8 @@ const ComicsListPage: NextPage = () => {
 
                 </LoadScreen>
             </FilterLayout>
-        </section >)
+        </section >
+    </>)
 }
 
 const ComicCard: FC<{ comic: Comic }> = ({ comic }) => {
