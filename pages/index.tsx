@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import styles from '../styles/Home.module.scss'
 import Image from 'next/image';
+import Link from 'next/link';
 import NavHeader from '../components/NavHeader/NavHeader';
 import { FC, useState } from 'react';
 import { navOptions } from '../components/Layout/Layout';
@@ -60,7 +61,7 @@ const HomeLatestComics: FC<{}> = ({ }) => {
     return (
         <section className="section">
             <div className="container">
-                <p className="title has-text-centered">Latest Comics</p>
+                <p className="title has-text-centered">Recent Comics</p>
                 <div className="columns is-mobile is-relative is-8 is-variable">
                     <div className="column is-one-third">
                         <ComicCard comic={results[0] || {}}></ComicCard>
@@ -71,15 +72,20 @@ const HomeLatestComics: FC<{}> = ({ }) => {
                     <div className="column is-one-third">
                         <ComicCard comic={results[0] || {}}></ComicCard>
                     </div>
+                    {isLoading ? (
+                        <div className="is-overlay is-fade-in-out has-background-light"></div>
+                    ) : null}
                 </div>
-                {isLoading ? (
-                    <div className="is-overlay is-fade-in-out has-background-light"></div>
-                ) : null}
+            </div>
+            <div className="container has-text-centered">
+                <button className="button is-primary is-medium">
+                    <Link href="/comics">
+                        <a className="has-text-white">See More</a>
+                    </Link>
+                </button>
             </div>
         </section>
     )
-
-
 }
 
 const HomeHero: FC<{}> = () => {
