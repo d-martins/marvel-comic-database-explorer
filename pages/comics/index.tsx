@@ -15,6 +15,8 @@ import FilterLayout from '../../components/FilterLayout/FilterLayout';
 import useDebounce from '../../hooks/useDebounce';
 import Pagination from '../../components/Pagination/Pagination';
 import { useRouter } from 'next/router';
+import useMarvelImage from '../../hooks/useMarvelImage';
+import useComicDate from '../../hooks/useMarvelDate';
 
 type ServerSideProps = {
     fallbackData?: MarvelApiResponse<Comic> | null
@@ -30,14 +32,14 @@ async function getData(query: ComicQueryOptions) {
     const pastDate = new Date(now.getFullYear() - 200, now.getMonth() + 1, now.getDate());
     const dateRange = [pastDate, now]; // don't list upcoming titles
 
-    return await ComicsService.getComicsList({ dateRange, ...query })
+    return await ComicsService.getComicsList({ dateRange, noVariants: true, ...query })
 }
 
 const columnOptions: DropdownOption[] = [
     { value: ComicOrderByFields.Title, label: "Title" },
     { value: ComicOrderByFields.IssueNumber, label: "Issue number" },
     { value: ComicOrderByFields.Modified, label: "Last modified" },
-    { value: ComicOrderByFields.OnsaleDate, label: "Sale date" },
+    { value: ComicOrderByFields.OnsaleDate, label: "Publishing date" },
     { value: ComicOrderByFields.FocDate, label: "Final order date" },
 ]
 const formatOptions: DropdownOption[] = [
@@ -283,18 +285,9 @@ const ComicsListPage: NextPage<ServerSideProps> = ({ fallbackData, directionPara
 
 const ComicCard: FC<{ comic: Comic }> = ({ comic }) => {
     const title = comic.title || ''
-    const comicDate = getComicDate(comic.dates);
-    const byline = comicDate ? comicDate.toLocaleDateString("en-us", { month: 'long', day: 'numeric', year: 'numeric' }) : 'no date available'
+    const thumbnail = useMarvelImage(comic.thumbnail);
+    const byline = useComicDate(comic.dates);
     const creatorLinks = getCreatorLinks(comic.creators?.items);
-    const thumbnail = getThumbnailUrl(comic.thumbnail);
-
-    function getComicDate(dates?: ComicDate[]) {
-        if (!dates || !dates.length) { return null; }
-
-        const dateObj = dates.find(date => date.type === 'onsaleDate') || dates[0];
-        // IE11 has trouble with the TimeZone part of the date, so remove the time entirely
-        return dateObj.date ? new Date(dateObj.date.split('T')[0]) : null;
-    }
 
     function getCreatorLinks(creators?: CreatorSummary[]) {
         if (!creators) { return []; }
@@ -308,14 +301,6 @@ const ComicCard: FC<{ comic: Comic }> = ({ comic }) => {
                 href: `/creators/${creator.resourceURI?.split('/').pop()}`
             }
         })
-    }
-
-    function getThumbnailUrl(image?: MarvelImage) {
-        if (!image || !image.path || !image.extension) {
-            return "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available/portrait_incredible.jpg"
-        }
-
-        return `${image.path}/portrait_incredible.${image.extension}`
     }
 
     return <Card

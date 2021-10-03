@@ -25,6 +25,15 @@ a {
   animation: fadeIn ease-in-out infinite 3s;
 }
 
+a.is-link {
+  transition: color .15s;
+  text-decoration: underline;
+
+  &:hover {
+    color: $red;
+  }
+}
+
 
 @keyframes fadeIn {
   0% {
