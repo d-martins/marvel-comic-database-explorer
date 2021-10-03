@@ -41,3 +41,5 @@ Improvements that still can be done in the app
 - add paralax the hero components
 - make use of the blurDataURL in the `<Image>` components
 - finish more pages other than comics
+
+[wireframes](https://www.figma.com/proto/o7mxFjPW4ZQtsFVy9b6Xvt/Marvel-Database-Explorer?page-id=3%3A5&node-id=4%3A15&viewport=343%2C48%2C0.7&scaling=scale-down&starting-point-node-id=4%3A15)
