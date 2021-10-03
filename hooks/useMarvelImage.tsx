@@ -53,9 +53,9 @@ const landscapeSizes = [
 const useMarvelImage = (image?: MarvelImage, size = ImageSizes.PortraitIncredible): string => {
     if (!image || !image.path || !image.extension) {
         if (landscapeSizes.includes(size)) {
-            return '/landscape_incredible'
+            return '/landscape_incredible.jpg'
         }
-        return '/portrait_incredible'
+        return '/portrait_incredible.jpg'
     }
 
     return `${image.path}/${size}.${image.extension}`

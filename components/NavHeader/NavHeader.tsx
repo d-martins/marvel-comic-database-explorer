@@ -8,10 +8,11 @@ import styles from './NavHeader.module.scss';
 export type NavItem = { href: string, label: string };
 
 export type NavProps = {
-    options: NavItem[]
+    items: NavItem[]
+    justNav?: boolean
 }
 
-const NavHeader: FC<NavProps> = ({ options }) => {
+const NavHeader: FC<NavProps> = ({ items, justNav = false }) => {
     const [isOpenMobile, setOpemMobile] = useState<boolean>(false);
 
     function toggleOpen() {
@@ -19,7 +20,7 @@ const NavHeader: FC<NavProps> = ({ options }) => {
     }
 
     return (
-        <nav className={`navbar ${styles["nav-header"]} is-primary is-relative`} role="navigation" aria-label="main navigation">
+        <nav className={`navbar ${styles["nav-header"]} is-primary is-relative ${justNav ? 'is-simple' : ''}`} role="navigation" aria-label="main navigation">
             <div className="navbar-background">
                 <Image
                     src="/nav-bg.png"
@@ -55,7 +56,7 @@ const NavHeader: FC<NavProps> = ({ options }) => {
                     </Link>
                 </div>
                 <div className="navbar-end">
-                    {options.map(option => {
+                    {items.map(option => {
                         return <NavItem key={option.href} option={option}></NavItem>
                     })}
                 </div>

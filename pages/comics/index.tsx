@@ -1,22 +1,19 @@
 import type { GetServerSideProps, NextPage } from 'next'
-import { FC, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Comic, ComicDate, ComicFormat, ComicOrderByFields, ComicQueryOptions } from '../../models/comic';
-import { MarvelApiResponse, MarvelImage, OrderDirection } from '../../models/marvelApi';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { Comic, ComicFormat, ComicOrderByFields, ComicQueryOptions } from '../../models/comic';
+import { MarvelApiResponse, OrderDirection } from '../../models/marvelApi';
 import { ComicsService } from '../../services/marvel-api';
 import { ColumnSizes } from '../../models/bulma';
 import { DropdownOption } from '../../components/Dropdown/Dropdown';
-import { CreatorSummary } from '../../models/creators';
 
 import LoadScreen from '../../components/LoadScreen/LoadScreen';
 import ErrorScreen from '../../components/ErrorScreen/ErrorScreen';
-import Card from '../../components/Card/Card';
 import GridLayout from '../../components/GridLayout/GridLayout';
 import FilterLayout from '../../components/FilterLayout/FilterLayout';
 import useDebounce from '../../hooks/useDebounce';
 import Pagination from '../../components/Pagination/Pagination';
 import { useRouter } from 'next/router';
-import useMarvelImage from '../../hooks/useMarvelImage';
-import useComicDate from '../../hooks/useMarvelDate';
+import ComicCard from '../../components/ComicCard/ComicCard';
 
 type ServerSideProps = {
     fallbackData?: MarvelApiResponse<Comic> | null
@@ -281,37 +278,6 @@ const ComicsListPage: NextPage<ServerSideProps> = ({ fallbackData, directionPara
             ) : null}
         </section >
     </>)
-}
-
-const ComicCard: FC<{ comic: Comic }> = ({ comic }) => {
-    const title = comic.title || ''
-    const thumbnail = useMarvelImage(comic.thumbnail);
-    const byline = useComicDate(comic.dates);
-    const creatorLinks = getCreatorLinks(comic.creators?.items);
-
-    function getCreatorLinks(creators?: CreatorSummary[]) {
-        if (!creators) { return []; }
-
-        // filters out creators that don't have the info we need to build the link
-        const useableCreators = creators.filter(creator => creator.name && creator.resourceURI) || []
-
-        return useableCreators.map(creator => {
-            return {
-                label: creator.name || '',
-                href: `/creators/${creator.resourceURI?.split('/').pop()}`
-            }
-        })
-    }
-
-    return <Card
-        title={title}
-        byline={byline}
-        links={creatorLinks}
-        thumbnail={{ src: thumbnail, alt: 'cover image of the comic issue' }}
-        useOverlay={true}
-        href={`/comics/${comic.id}`}
-    ></Card>
-
 }
 
 export default ComicsListPage;

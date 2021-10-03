@@ -3,8 +3,30 @@
 @import '../../styles/bulma/bulma-overrides.scss';
 
 .nav-header {
-    :global {
+    &:global(.is-simple) {
+        :global {
 
+            .navbar-background,
+            .navbar-brand img {
+                opacity: 0;
+                width: 0;
+            }
+
+            @include from($desktop) {
+                .navbar-start {
+                    opacity: 0;
+                    width: 0;
+                }
+
+                .navbar-end {
+                    width: 100%;
+                    place-content: center;
+                }
+            }
+        }
+    }
+
+    :global {
         img {
             max-height: 100%;
         }
@@ -23,7 +45,7 @@
                 background-color: rgba($black, 0.4) !important;
             }
 
-            &.is-active{
+            &.is-active {
                 box-shadow: 0px -4px 0 $red inset;
             }
 
