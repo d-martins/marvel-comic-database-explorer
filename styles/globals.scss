@@ -6,6 +6,11 @@ body {
   margin: 0;
   font-family: $family-primary;
   background-color: $grey-lightest;
+
+  &,
+  #__next {
+    height: 100%;
+  }
 }
 
 a {
