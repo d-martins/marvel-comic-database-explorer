@@ -1,0 +1,11 @@
+@import '../../styles/bulma/sass/components/pagination.sass';
+@import '../../styles/bulma/sass/utilities/extends.sass';
+
+.pagination {
+
+    :global(.is-disabled) {
+        @extend .pagination-link,
+        [disabled];
+    }
+
+}

@@ -1,6 +1,7 @@
 import { FC } from "react"
-import Link from "next/link"
 import { useRouter } from "next/router"
+import Link from "next/link"
+import styles from "./Pagination.module.scss";
 
 export type PaginationProps = {
     currentPage: number;
@@ -11,7 +12,6 @@ export type PaginationProps = {
 }
 
 const Pagination: FC<PaginationProps> = ({ totalItems, pageSize, onClick, navigate, currentPage }) => {
-    const router = useRouter();
     const totalPages = Math.ceil(totalItems / pageSize);
     const lastPage = totalPages - 1;
     const hasRightEllipsis = lastPage - currentPage > 3
@@ -50,7 +50,7 @@ const Pagination: FC<PaginationProps> = ({ totalItems, pageSize, onClick, naviga
     }
 
     function handleClick(newPage: number) {
-        if (typeof onClick !== 'function') { return; }
+        if (typeof onClick !== 'function' || navigate) { return; }
 
         if (newPage < 0) { newPage = 0; }
         if (newPage > lastPage) { newPage = lastPage; }
@@ -58,34 +58,55 @@ const Pagination: FC<PaginationProps> = ({ totalItems, pageSize, onClick, naviga
     }
 
     return (
-        <nav className="pagination" role="pagination">
-            <a className="pagination-previous" onClick={() => handleClick(currentPage - 1)}>Previous</a>
-            <a className="pagination-next" onClick={() => handleClick(currentPage + 1)}>Next page</a>
-            <ul className="pagination-list ml-0">
-                {pagesToDraw.map((page) => {
-                    let link = <span className="pagination-ellipsis">&hellip;</span>;
-                    if (page >= 0) {
-                        if (navigate) {
-                            link = (
-                                <Link href={{ ...router, query: { ...router.query, page: page } }} >
-                                    <a className={`pagination-link ${page === currentPage ? 'is-current' : ''}`}> {page + 1}</a>
-                                </Link>
-                            )
-                        } else {
-                            link = (<a className={`pagination-link ${page === currentPage ? 'is-current' : ''}`} onClick={() => { handleClick(page) }}> {page + 1}</a>)
-                        }
+        <nav className={`pagination ${styles["pagination"]}`} role="pagination">
+
+            {currentPage === 0 ? (
+                <span className="pagination-previous is-disabled" >Previous</span>
+            ) : (
+                <ConditionalLink navigate={navigate} page={currentPage - 1}>
+                    <a className="pagination-previous" onClick={() => handleClick(currentPage - 1)}>Previous</a>
+                </ConditionalLink>
+            )}
+            {currentPage === lastPage ? (
+                <span className="pagination-next is-disabled" >Next page</span>
+            ) : (
+                <ConditionalLink navigate={navigate} page={currentPage + 1}>
+                    <a className="pagination-next" onClick={() => handleClick(currentPage + 1)}>Next page</a>
+                </ConditionalLink>
+            )}
+            < ul className="pagination-list ml-0">
+                {pagesToDraw.filter((_, i) => i < totalPages).map((page) => {
+                    if (page < 0) {
+                        return <span className="pagination-ellipsis">&hellip;</span>;
                     }
+
                     return (
                         <li key={page}>
-                            {link}
+                            <ConditionalLink navigate={navigate} page={page}>
+                                <a className={`pagination-link ${page === currentPage ? 'is-current' : ''}`} onClick={() => { handleClick(page) }}> {page + 1}</a>
+                            </ConditionalLink>
                         </li>
                     )
                 })}
             </ul>
         </nav >
     );
+}
 
+const ConditionalLink: FC<{ navigate?: boolean, page: number }> = ({ navigate, children, page }) => {
+    const router = useRouter();
 
+    if (navigate) {
+        const newRouter = { ...router };
+        if (page === 0) {
+            delete newRouter.query["page"];
+        } else {
+            newRouter.query["page"] = `${page}`;
+        }
+
+        return <Link href={newRouter}>{children}</Link>
+    }
+    return <>{children}</>
 }
 
 export default Pagination;
