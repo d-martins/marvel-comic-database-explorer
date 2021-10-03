@@ -1,4 +1,4 @@
-export enum OrderDirection { Ascending, Descending }
+export enum OrderDirection { Ascending="asc", Descending="desc" }
 
 export type QueryOptions = {
     [key: string]: string | string[] | number | number[] | Date | Date[] | boolean | undefined 

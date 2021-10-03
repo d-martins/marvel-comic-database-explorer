@@ -1,4 +1,6 @@
 import { FC } from "react"
+import Link from "next/link"
+import { useRouter } from "next/router"
 
 export type PaginationProps = {
     currentPage: number;
@@ -9,6 +11,7 @@ export type PaginationProps = {
 }
 
 const Pagination: FC<PaginationProps> = ({ totalItems, pageSize, onClick, navigate, currentPage }) => {
+    const router = useRouter();
     const totalPages = Math.ceil(totalItems / pageSize);
     const lastPage = totalPages - 1;
     const hasRightEllipsis = lastPage - currentPage > 3
@@ -60,11 +63,18 @@ const Pagination: FC<PaginationProps> = ({ totalItems, pageSize, onClick, naviga
             <a className="pagination-next" onClick={() => handleClick(currentPage + 1)}>Next page</a>
             <ul className="pagination-list ml-0">
                 {pagesToDraw.map((page) => {
-                    const link = page < 0 ? (
-                        <span className="pagination-ellipsis">&hellip;</span>
-                    ) : (
-                        <a className={`pagination-link ${page === currentPage ? 'is-current' : ''}`} onClick={() => { handleClick(page) }}> {page + 1}</a>
-                    )
+                    let link = <span className="pagination-ellipsis">&hellip;</span>;
+                    if (page >= 0) {
+                        if (navigate) {
+                            link = (
+                                <Link href={{ ...router, query: { ...router.query, page: page } }} >
+                                    <a className={`pagination-link ${page === currentPage ? 'is-current' : ''}`}> {page + 1}</a>
+                                </Link>
+                            )
+                        } else {
+                            link = (<a className={`pagination-link ${page === currentPage ? 'is-current' : ''}`} onClick={() => { handleClick(page) }}> {page + 1}</a>)
+                        }
+                    }
                     return (
                         <li key={page}>
                             {link}

@@ -1,4 +1,4 @@
-import type { NextPage } from 'next'
+import type { GetServerSideProps, NextPage } from 'next'
 import { FC, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Comic, ComicDate, ComicOrderByFields, ComicQueryOptions } from '../../models/comic';
 import { MarvelApiResponse, MarvelImage, OrderDirection } from '../../models/marvelApi';
@@ -14,6 +14,16 @@ import GridLayout from '../../components/GridLayout/GridLayout';
 import FilterLayout from '../../components/FilterLayout/FilterLayout';
 import useDebounce from '../../hooks/useDebounce';
 import Pagination from '../../components/Pagination/Pagination';
+import { useRouter } from 'next/router';
+
+type ServerSideProps = {
+    fallbackData?: MarvelApiResponse<Comic> | null,
+    searchParam?: string,
+    sortByParam?: ComicOrderByFields,
+    directionParam?: OrderDirection,
+    pageParam?: number
+
+}
 
 async function getData(query: ComicQueryOptions) {
     return await ComicsService.getComicsList(query)
@@ -31,22 +41,57 @@ const directionOptions: DropdownOption[] = [
     { value: OrderDirection.Descending, label: "Descending" },
 ]
 
-const ComicsListPage: NextPage = () => {
+export const getServerSideProps: GetServerSideProps<ServerSideProps> = async ({ query }) => {
+    const {
+        search = "",
+        sortby = ComicOrderByFields.OnsaleDate,
+        direction = OrderDirection.Descending,
+        page = "0",
+    } = query;
+
+    const searchParam = Array.isArray(search) ? search[0] : search;
+    const sortByParam = (Array.isArray(sortby) ? sortby[0] : sortby) as ComicOrderByFields;
+    const directionParam = (Array.isArray(direction) ? direction[0] : direction) as OrderDirection
+    const pageParam = parseInt(Array.isArray(page) ? page[0] : page)
+
+    // Fetch data from external API
+    const res = await getData({
+        titleStartsWith: searchParam,
+        orderBy: sortByParam,
+        orderDirection: directionParam,
+        offset: pageParam
+    })
+    const data = res
+
+    // Pass data to the page via props
+    return {
+        props: {
+            fallbackData: data.code === 200 ? data : null,
+            directionParam,
+            pageParam,
+            searchParam,
+            sortByParam
+        }
+    }
+}
+
+const ComicsListPage: NextPage<ServerSideProps> = ({ fallbackData, directionParam, pageParam, searchParam, sortByParam }) => {
+    const router = useRouter();
     const [isLoading, setLoading] = useState(true);
     const [isSearching, setSearching] = useState(false);
-    const [data, setData] = useState<MarvelApiResponse<Comic> | undefined>(undefined)
+    const [data, setData] = useState<MarvelApiResponse<Comic> | undefined>(fallbackData || undefined)
     const [error, setError] = useState<string>();
 
     const [suggestions, setSuggestions] = useState<DropdownOption[]>([]);
-    const [searchWord, setSearchWord] = useState<string>("");
-    const [filterWord, setFilterWord] = useState<string>("");
-    const [page, setPage] = useState<number>(0);
+    const [searchWord, setSearchWord] = useState<string>(searchParam || "");
+    const filterWord = useMemo(() => { return searchParam }, [searchParam]);
+    const page = useMemo(() => { return pageParam || 0 }, [pageParam])
 
-    const [sortColumn, setSortColumn] = useState<ComicOrderByFields>(ComicOrderByFields.OnsaleDate);
-    const [sortDirection, setSortDirection] = useState<OrderDirection>(OrderDirection.Descending);
+    const sortColumn = useMemo(() => { return sortByParam || ComicOrderByFields.OnsaleDate }, [sortByParam]);
+    const sortDirection = useMemo(() => { return directionParam || OrderDirection.Descending }, [directionParam]);
 
     const debouncedSearchWord = useDebounce(searchWord, 500);
-    const results = data?.data?.results || [{}]
+    const results = data?.data?.results || []
 
     const query: ComicQueryOptions = useMemo(() => {
         const now = new Date();
@@ -122,6 +167,23 @@ const ComicsListPage: NextPage = () => {
         setSuggestions(options);
     }
 
+    const changeRoute = (queryKey: string, queryValue: string, resetPagination?: boolean, replace?: boolean) => {
+        if (queryValue) {
+            router.query[queryKey] = queryValue
+        } else {
+            delete router.query[queryKey];
+        }
+        if (resetPagination) {
+            delete router.query["page"];
+        }
+
+        if (replace) {
+            router.push(router);
+        }else {
+            router.replace(router);
+        }
+    }
+
     return (<>
         <section className="section is-size-3 has-text-weight-bold is-family-secondary pb-0">
             <div className="container">
@@ -134,12 +196,12 @@ const ComicsListPage: NextPage = () => {
                     label: "Sort by",
                     options: columnOptions,
                     value: sortColumn,
-                    onChange: ({ value }) => { setSortColumn(value as ComicOrderByFields) },
+                    onChange: ({ value }) => { changeRoute('sortby', value.toString(), true) },
                 }, {
                     label: "Direction",
                     options: directionOptions,
                     value: sortDirection,
-                    onChange: ({ value }) => { setSortDirection(value as OrderDirection); },
+                    onChange: ({ value }) => { changeRoute('direction', value.toString(), true) },
                 }
                 ]}
                 searchOptions={{
@@ -148,7 +210,7 @@ const ComicsListPage: NextPage = () => {
                     isLoading: isSearching,
                     suggestions: suggestions,
                     onInput: (v) => { setSearchWord(v); },
-                    onEnter: (v) => { setFilterWord(v); setSuggestions([]) },
+                    onEnter: (v) => { changeRoute('search', v, true); setSuggestions([]) },
                 }}
             >
                 <LoadScreen isLoading={isLoading && !data}>
@@ -182,13 +244,11 @@ const ComicsListPage: NextPage = () => {
                             currentPage={page}
                             pageSize={20}
                             totalItems={data?.data?.total || results.length}
-                            onClick={(newPage) => { setPage(newPage); }}
+                            navigate={true}
                         ></Pagination>
                     </div>
                 </section>
             ) : null}
-
-
         </section >
     </>)
 }
