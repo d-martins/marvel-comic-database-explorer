@@ -6,7 +6,7 @@ import { SeriesSummary } from "./series"
 import { StorySummary } from "./stories"
 
 export enum ComicOrderByFields { FocDate = 'focDate', OnsaleDate = 'onsaleDate', Title = 'title', IssueNumber = 'issueNumber', Modified = 'modified' }
-export type ComicFormat = "comic" | "magazine" | "trade paperback" | "hardcover" | "digest" | "graphic novel" | "digital comic" | "infinite comic"
+export enum ComicFormat { Comic = "comic", Magazine = "magazine", Paperback = "trade paperback", Hardcover = "hardcover", Digest = "digest", GraphicNovel = "graphic novel", Digital = "digital comic", Infinite = "infinite comic" }
 export type ComicFormatType = "comic" | "collection"
 
 export interface ComicQueryOptions extends BaseQueryOptions {

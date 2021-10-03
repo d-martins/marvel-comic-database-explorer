@@ -1,6 +1,6 @@
 import type { GetServerSideProps, NextPage } from 'next'
 import { FC, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Comic, ComicDate, ComicOrderByFields, ComicQueryOptions } from '../../models/comic';
+import { Comic, ComicDate, ComicFormat, ComicOrderByFields, ComicQueryOptions } from '../../models/comic';
 import { MarvelApiResponse, MarvelImage, OrderDirection } from '../../models/marvelApi';
 import { ComicsService } from '../../services/marvel-api';
 import { ColumnSizes } from '../../models/bulma';
@@ -17,12 +17,12 @@ import Pagination from '../../components/Pagination/Pagination';
 import { useRouter } from 'next/router';
 
 type ServerSideProps = {
-    fallbackData?: MarvelApiResponse<Comic> | null,
-    searchParam?: string,
-    sortByParam?: ComicOrderByFields,
-    directionParam?: OrderDirection,
+    fallbackData?: MarvelApiResponse<Comic> | null
+    searchParam?: string
+    sortByParam?: ComicOrderByFields
+    directionParam?: OrderDirection
+    formatParam?: ComicFormat
     pageParam?: number
-
 }
 
 async function getData(query: ComicQueryOptions) {
@@ -36,6 +36,18 @@ const columnOptions: DropdownOption[] = [
     { value: ComicOrderByFields.OnsaleDate, label: "Sale date" },
     { value: ComicOrderByFields.FocDate, label: "Final order date" },
 ]
+const formatOptions: DropdownOption[] = [
+    { value: "", label: "All" },
+    { value: ComicFormat.Comic, label: "Comic" },
+    { value: ComicFormat.Digest, label: "Digest" },
+    { value: ComicFormat.Digital, label: "Digital" },
+    { value: ComicFormat.GraphicNovel, label: "Graphic Novel" },
+    { value: ComicFormat.Infinite, label: "Infinite" },
+    { value: ComicFormat.Magazine, label: "Magazine" },
+    { value: ComicFormat.Paperback, label: "Paperback" },
+    { value: ComicFormat.Hardcover, label: "Harcover" },
+
+]
 const directionOptions: DropdownOption[] = [
     { value: OrderDirection.Ascending, label: "Ascending" },
     { value: OrderDirection.Descending, label: "Descending" },
@@ -47,11 +59,14 @@ export const getServerSideProps: GetServerSideProps<ServerSideProps> = async ({ 
         sortby = ComicOrderByFields.OnsaleDate,
         direction = OrderDirection.Descending,
         page = "0",
+        format = ""
+
     } = query;
 
     const searchParam = Array.isArray(search) ? search[0] : search;
     const sortByParam = (Array.isArray(sortby) ? sortby[0] : sortby) as ComicOrderByFields;
     const directionParam = (Array.isArray(direction) ? direction[0] : direction) as OrderDirection
+    const formatParam = (Array.isArray(format) ? format[0] : format) as ComicFormat
     const pageParam = parseInt(Array.isArray(page) ? page[0] : page)
 
     // Fetch data from external API
@@ -59,7 +74,8 @@ export const getServerSideProps: GetServerSideProps<ServerSideProps> = async ({ 
         titleStartsWith: searchParam,
         orderBy: sortByParam,
         orderDirection: directionParam,
-        offset: pageParam
+        offset: pageParam,
+        format: formatParam
     })
     const data = res
 
@@ -70,12 +86,13 @@ export const getServerSideProps: GetServerSideProps<ServerSideProps> = async ({ 
             directionParam,
             pageParam,
             searchParam,
-            sortByParam
+            sortByParam,
+            formatParam
         }
     }
 }
 
-const ComicsListPage: NextPage<ServerSideProps> = ({ fallbackData, directionParam, pageParam, searchParam, sortByParam }) => {
+const ComicsListPage: NextPage<ServerSideProps> = ({ fallbackData, directionParam, pageParam, searchParam, sortByParam, formatParam }) => {
     const router = useRouter();
     const [isLoading, setLoading] = useState(true);
     const [isSearching, setSearching] = useState(false);
@@ -89,6 +106,7 @@ const ComicsListPage: NextPage<ServerSideProps> = ({ fallbackData, directionPara
 
     const sortColumn = useMemo(() => { return sortByParam || ComicOrderByFields.OnsaleDate }, [sortByParam]);
     const sortDirection = useMemo(() => { return directionParam || OrderDirection.Descending }, [directionParam]);
+    const format = useMemo(() => { return formatParam || "" }, [formatParam]);
 
     const debouncedSearchWord = useDebounce(searchWord, 500);
     const results = data?.data?.results || []
@@ -104,8 +122,9 @@ const ComicsListPage: NextPage<ServerSideProps> = ({ fallbackData, directionPara
             titleStartsWith: filterWord,
             limit: 20,
             offset: page * 20,
+            format: format || undefined
         }
-    }, [sortColumn, sortDirection, filterWord, page])
+    }, [sortColumn, sortDirection, filterWord, page, format])
 
     // memoizes the load data function so it can be called inside effects
     const loadData = useCallback(() => {
@@ -179,7 +198,7 @@ const ComicsListPage: NextPage<ServerSideProps> = ({ fallbackData, directionPara
 
         if (replace) {
             router.push(router);
-        }else {
+        } else {
             router.replace(router);
         }
     }
@@ -192,17 +211,25 @@ const ComicsListPage: NextPage<ServerSideProps> = ({ fallbackData, directionPara
         </section>
         <section className="section">
             <FilterLayout
-                filters={[{
-                    label: "Sort by",
-                    options: columnOptions,
-                    value: sortColumn,
-                    onChange: ({ value }) => { changeRoute('sortby', value.toString(), true) },
-                }, {
-                    label: "Direction",
-                    options: directionOptions,
-                    value: sortDirection,
-                    onChange: ({ value }) => { changeRoute('direction', value.toString(), true) },
-                }
+                filters={[
+                    {
+                        label: "Format",
+                        options: formatOptions,
+                        value: format,
+                        onChange: ({ value }) => { changeRoute('format', value.toString(), true) },
+                    },
+                    {
+                        label: "Sort by",
+                        options: columnOptions,
+                        value: sortColumn,
+                        onChange: ({ value }) => { changeRoute('sortby', value.toString(), true) },
+                    },
+                    {
+                        label: "Direction",
+                        options: directionOptions,
+                        value: sortDirection,
+                        onChange: ({ value }) => { changeRoute('direction', value.toString(), true) },
+                    }
                 ]}
                 searchOptions={{
                     value: searchWord,
