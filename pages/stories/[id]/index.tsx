@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router';
 import { useEffect, useState } from "react";
+import InProgress from '../../../components/WIP/InProgress';
 import { MarvelApiResponse } from '../../../models/marvelApi';
 import { Story } from '../../../models/stories';
 import { StoriesService } from '../../../services/marvel-api';

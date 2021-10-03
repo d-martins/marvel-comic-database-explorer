@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
 import { useEffect, useState } from "react";
+import InProgress from '../../components/WIP/InProgress';
 import { Character } from '../../models/character';
 import { MarvelApiResponse } from '../../models/marvelApi';
 import { Series } from '../../models/series';
