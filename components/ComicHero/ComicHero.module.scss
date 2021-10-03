@@ -1,4 +1,7 @@
+@import '../../styles/bulma/bulma-overrides.scss';
+
 .hero {
+    background: radial-gradient($primary, $black);
     :global {
         .hero-image {
             opacity: .4;

@@ -1,19 +1,27 @@
 import { FC } from "react";
-import Nav from "./Nav";
+import NavHeader, { NavItem } from "./NavHeader/NavHeader";
 import styles from '../styles/Home.module.scss'
 
-const Layout: FC<{}> = ({ children }) => {
-    return (<>
-        <Nav></Nav>
-        <div className="content">
-            {children}
-        </div>
-        
+const navOptions: NavItem[] = [
+  { href: '/series', label: "Series" },
+  { href: '/characters', label: "Character" },
+  { href: '/creators', label: "Creators" },
+  { href: '/comics', label: "Comics" },
+  { href: '/stories', label: "Stories" },
+  { href: '/events', label: "Events" },
+]
 
-      <footer className={styles.footer}>
-        <a href="http://marvel.com">Data provided by Marvel. © 2021 MARVEL</a>
-      </footer>
-    </>)
+const Layout: FC<{}> = ({ children }) => {
+  return (<>
+    <NavHeader options={navOptions}></NavHeader>
+    <div className="content">
+      {children}
+    </div>
+
+    <footer className={styles.footer}>
+      <a href="http://marvel.com">Data provided by Marvel. © 2021 MARVEL</a>
+    </footer>
+  </>)
 }
 
 export default Layout;

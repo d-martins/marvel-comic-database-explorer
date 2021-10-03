@@ -41,9 +41,21 @@ export enum ImageSizes {
     Detail = 'detail'
 }
 
+const landscapeSizes = [
+    ImageSizes.LandscapeSmall,
+    ImageSizes.LandscapeMedium,
+    ImageSizes.LandscapeLarge,
+    ImageSizes.LandscapeXLarge,
+    ImageSizes.LandscapeAmazing,
+    ImageSizes.LandscapeIncredible,
+]
+
 const useMarvelImage = (image?: MarvelImage, size = ImageSizes.PortraitIncredible): string => {
     if (!image || !image.path || !image.extension) {
-        return "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available/portrait_incredible.jpg"
+        if (landscapeSizes.includes(size)) {
+            return '/landscape_incredible'
+        }
+        return '/portrait_incredible'
     }
 
     return `${image.path}/${size}.${image.extension}`
