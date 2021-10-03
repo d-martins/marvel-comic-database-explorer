@@ -26,7 +26,11 @@ type ServerSideProps = {
 }
 
 async function getData(query: ComicQueryOptions) {
-    return await ComicsService.getComicsList(query)
+    const now = new Date();
+    const pastDate = new Date(now.getFullYear() - 200, now.getMonth() + 1, now.getDate());
+    const dateRange = [pastDate, now]; // don't list upcoming titles
+
+    return await ComicsService.getComicsList({ dateRange, ...query })
 }
 
 const columnOptions: DropdownOption[] = [
@@ -94,7 +98,7 @@ export const getServerSideProps: GetServerSideProps<ServerSideProps> = async ({ 
 
 const ComicsListPage: NextPage<ServerSideProps> = ({ fallbackData, directionParam, pageParam, searchParam, sortByParam, formatParam }) => {
     const router = useRouter();
-    const [isLoading, setLoading] = useState(true);
+    const [isLoading, setLoading] = useState(false);
     const [isSearching, setSearching] = useState(false);
     const [data, setData] = useState<MarvelApiResponse<Comic> | undefined>(fallbackData || undefined)
     const [error, setError] = useState<string>();
@@ -112,11 +116,8 @@ const ComicsListPage: NextPage<ServerSideProps> = ({ fallbackData, directionPara
     const results = data?.data?.results || []
 
     const query: ComicQueryOptions = useMemo(() => {
-        const now = new Date();
-        const pastDate = new Date(now.getFullYear() - 200, now.getMonth() + 1, now.getDate());
 
         return {
-            dateRange: [pastDate, now], // don't list upcoming titles
             orderBy: sortColumn,
             orderDirection: sortDirection,
             titleStartsWith: filterWord,
@@ -283,7 +284,7 @@ const ComicsListPage: NextPage<ServerSideProps> = ({ fallbackData, directionPara
 const ComicCard: FC<{ comic: Comic }> = ({ comic }) => {
     const title = comic.title || ''
     const comicDate = getComicDate(comic.dates);
-    const byline = comicDate ? comicDate.toLocaleDateString() : 'no date available'
+    const byline = comicDate ? comicDate.toLocaleDateString("en-us", { month: 'long', day: 'numeric', year: 'numeric' }) : 'no date available'
     const creatorLinks = getCreatorLinks(comic.creators?.items);
     const thumbnail = getThumbnailUrl(comic.thumbnail);
 
@@ -291,8 +292,8 @@ const ComicCard: FC<{ comic: Comic }> = ({ comic }) => {
         if (!dates || !dates.length) { return null; }
 
         const dateObj = dates.find(date => date.type === 'onsaleDate') || dates[0];
-
-        return dateObj.date ? new Date(dateObj.date) : null;
+        // IE11 has trouble with the TimeZone part of the date, so remove the time entirely
+        return dateObj.date ? new Date(dateObj.date.split('T')[0]) : null;
     }
 
     function getCreatorLinks(creators?: CreatorSummary[]) {

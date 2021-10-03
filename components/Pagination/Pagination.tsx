@@ -16,7 +16,6 @@ const Pagination: FC<PaginationProps> = ({ totalItems, pageSize, onClick, naviga
     const lastPage = totalPages - 1;
     const hasRightEllipsis = lastPage - currentPage > 3
     const hasLeftEllipsis = currentPage > 3
-    const hasBothEllipsis = hasLeftEllipsis && hasRightEllipsis;
     const pagesToDraw = [...Array(totalPages > 7 ? 7 : totalPages)];
 
     // 0 1 2 3
@@ -77,7 +76,7 @@ const Pagination: FC<PaginationProps> = ({ totalItems, pageSize, onClick, naviga
             < ul className="pagination-list ml-0">
                 {pagesToDraw.filter((_, i) => i < totalPages).map((page) => {
                     if (page < 0) {
-                        return <span className="pagination-ellipsis">&hellip;</span>;
+                        return <span key={page} className="pagination-ellipsis">&hellip;</span>;
                     }
 
                     return (
@@ -104,7 +103,8 @@ const ConditionalLink: FC<{ navigate?: boolean, page: number }> = ({ navigate, c
             newRouter.query["page"] = `${page}`;
         }
 
-        return <Link href={newRouter}>{children}</Link>
+
+        return <Link href={{ pathname: newRouter.pathname, query: newRouter.query }}>{children}</Link>
     }
     return <>{children}</>
 }

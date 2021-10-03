@@ -3,7 +3,7 @@ import apiConfig from "./config"
 
 export async function makeRequest<T>(endpoint: string, query: QueryOptions = {}): Promise<MarvelApiResponse<T>> {
     try {
-        const requestUrl = buildRequestUrl(endpoint, query);
+        const requestUrl = await buildRequestUrl(endpoint, query);
         const resp = await fetch(requestUrl).catch((err) => { throw new Error("Failed to connect with the Marvel service.") });
         const body = await resp.json().catch((err) => { console.error(err); throw new Error("Received unexpected response.") });
 
@@ -20,10 +20,15 @@ export async function makeRequest<T>(endpoint: string, query: QueryOptions = {})
     }
 }
 
-function buildRequestUrl(endpoint: string, query: QueryOptions) {
+async function buildRequestUrl(endpoint: string, query: QueryOptions) {
     const { key, url } = apiConfig;
-    const queryString = buildQueryString({ ...query, apikey: key })
 
+    if (typeof window === "undefined") {
+        const serverQueryBuilder = (await import('./server-utils')).buildServerQueryString;
+        query = serverQueryBuilder(query);
+    }
+
+    const queryString = buildQueryString({ ...query, apikey: key })
     return `${url}${endpoint}?${queryString}`
 }
 
