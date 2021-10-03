@@ -3,10 +3,10 @@ import NavHeader, { NavItem } from "../NavHeader/NavHeader";
 import styles from './Layout.module.scss'
 
 const navOptions: NavItem[] = [
+  { href: '/comics', label: "Comics" },
   { href: '/series', label: "Series" },
   { href: '/characters', label: "Character" },
   { href: '/creators', label: "Creators" },
-  { href: '/comics', label: "Comics" },
   { href: '/stories', label: "Stories" },
   { href: '/events', label: "Events" },
 ]
