@@ -78,7 +78,7 @@ const HomeLatestComics: FC<{}> = ({ }) => {
                 </div>
             </div>
             <div className="container has-text-centered">
-                <button className="button is-primary is-medium">
+                <button className="button is-primary is-size-4 is-size-6-mobile">
                     <Link href="/comics">
                         <a className="has-text-white">See More</a>
                     </Link>
@@ -104,8 +104,8 @@ const HomeHero: FC<{}> = () => {
             <div className="hero-body">
                 <div className="container is-family-secondary has-text-centered">
                     <Image src="/marvel.svg" alt="the marvel logo" width="130" height="52"></Image>
-                    <div className="title is-size-1 mt-4 mb-2">Marvel Comics</div>
-                    <div className="title is-size-2">Ultimate database explorer</div>
+                    <div className="title is-size-1 is-size-2-mobile mt-4 mb-2">Marvel Comics</div>
+                    <div className="title is-size-2 is-size-3-mobile">Ultimate database explorer</div>
                 </div>
 
             </div>
