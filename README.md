@@ -3,6 +3,8 @@ Small SPA for displaying content form Marvel's developer API
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+Link to the application [here](https://marvel-comic-database-explorer.herokuapp.com/comics)
+
 ## Local configuration
 
 1. Get an API key from [Marvel's dev portal](https://developer.marvel.com/account) if you haven't already
